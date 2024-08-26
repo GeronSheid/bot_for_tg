@@ -1,0 +1,6 @@
+aiogram
+aiohttp
+pydantic
+python-dotenv
+motor
+beanie

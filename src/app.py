@@ -29,13 +29,13 @@ scheduller = AsyncIOScheduler()
 async def command_start_handler(message: Message) -> None:
     await message.answer('Ну привет мой маленький любитель поучиться!')
 
-async def on_startup():
-    scheduller.add_job(run_parser_span, 'cron', day=1, hour=0, minute=0)
-    scheduller.start()
+# async def on_startup():
+#     scheduller.add_job(run_parser_span, 'cron', day=1, hour=0, minute=0)
+#     scheduller.start()
 
 async def main() -> None:
     await init_db()
-    await on_startup()
+    # await on_startup()
     await dp.start_polling(bot)
 
 if __name__ == '__main__':

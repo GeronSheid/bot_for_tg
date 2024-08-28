@@ -1,7 +1,7 @@
 import os
 
 
-async def create_post(dir: str, batch_size: int = 3):
+async def create_post(dir: str, batch_size: int = 1):
     posts = []
     for filename in os.listdir(dir):
         if filename.lower().endswith(('.png', '.jpeg', '.jpg', '.gif', '.webp')):

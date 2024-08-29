@@ -1,8 +1,9 @@
 import os
 from dotenv import load_dotenv
 from motor.motor_asyncio import AsyncIOMotorClient
+from database.schemas import User
 
-from beanie import Document, init_beanie
+from beanie import init_beanie
 
 load_dotenv()
 
@@ -11,9 +12,7 @@ MONGO_PASS = os.getenv('PASSWORD')
 MONGO_DB_NAME = os.getenv('DB_NAME')
 
 
-class User(Document):
-    name: str
-    surname: str
+
 
 
 

@@ -14,7 +14,8 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.filters import CommandStart
 from aiogram.enums import ParseMode
 from aiogram.types import Message
-from posts_handling.create_post import create_post
+from database.models import add_image, get_image
+from posts_handling.create_post import create_post, create_post_from_db
 
 load_dotenv()
 BOT_TOKEN = os.getenv('BOT_TOKEN')
@@ -35,7 +36,15 @@ async def command_start_handler(message: Message) -> None:
 #функция для отправки в канал поста по любому сообщению
 @dp.channel_post()
 async def channel_post_handler(message: Message) -> None:
-    await create_post(bot, message.chat.id, content_dir)
+    data = {
+        'url': os.path.join(content_dir, 'test.jpg'),
+        'author': '',
+        'tags': ['tag1', 'tag2']
+    }
+    await add_image(data)
+    res = await get_image(url=os.path.join(content_dir, 'test.jpg'))
+    print('Сюда смотри', res.url)
+    await create_post_from_db(post=res, bot=bot, chat_id=message.chat.id)
 
 
 

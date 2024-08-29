@@ -20,3 +20,12 @@ async def create_post(bot: Bot, chat_id: str, dir: str):
     media = []
     os.remove(image_path)
     os.remove(text_path)
+
+async def create_post_from_db(post, bot: Bot, chat_id: str):
+    media = []
+    text = ''
+    for tag in post.tags:
+        text = text + f'#{tag} '
+    media.append(InputMediaPhoto(media=FSInputFile(path=post.url), caption=text))
+    await bot.send_media_group(chat_id=chat_id, media=media)
+    os.remove(post.url)

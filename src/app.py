@@ -14,7 +14,7 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.filters import CommandStart
 from aiogram.enums import ParseMode
 from aiogram.types import Message
-from posts_handling.send_post import send_post
+from posts_handling.create_post import create_post
 
 load_dotenv()
 BOT_TOKEN = os.getenv('BOT_TOKEN')
@@ -36,7 +36,7 @@ async def command_start_handler(message: Message) -> None:
 @dp.channel_post()
 async def channel_post_handler(message: Message) -> None:
     await message.answer(f'{message.chat.id}')
-    await send_post(bot, message.chat.id, content_dir)
+    await create_post(bot, message.chat.id, content_dir)
 
 
 

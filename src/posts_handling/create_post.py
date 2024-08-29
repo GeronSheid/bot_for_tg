@@ -1,25 +1,22 @@
 import os
+from aiogram import Bot
+from aiogram.types import Message, InputMediaPhoto, FSInputFile
 
-
-async def create_post(dir: str, batch_size: int = 1):
-    posts = []
-    for filename in os.listdir(dir):
-        if filename.lower().endswith(('.png', '.jpeg', '.jpg', '.gif', '.webp')):
-            image_path = os.path.join(dir, filename)
-            text_path = os.path.splitext(image_path)[0] + '.txt'
-            if os.path.exists(text_path):
-                with open(text_path, 'r', encoding='utf-8') as text_file:
-                    text = text_file.read().strip()
-            else:
-                text = ''
-            posts.append(
-                {
-                    'img': image_path,
-                    'text': text,
-                    'text_path': text_path
-                })
-            if len(posts) == batch_size:
-                yield posts
-                posts = []
-    if posts:
-        yield posts
+async def create_post(bot: Bot, chat_id: str, dir: str):
+    media = []
+    filename = os.listdir(dir)[0]
+    image_path = os.path.join(dir, filename)
+    text_path = os.path.splitext(image_path)[0] + '.txt'
+    text = ''
+    if os.path.exists(text_path):
+        with open(text_path, 'r', encoding='utf-8') as text_file:
+            plain_text = text_file.read().strip()
+            
+            for tag in plain_text.split(' '):
+                text = text + f'#{tag} '
+    media_image = FSInputFile(path=image_path)
+    media.append(InputMediaPhoto(media=media_image, caption=text))
+    await bot.send_media_group(chat_id=chat_id, media=media)
+    media = []
+    os.remove(image_path)
+    os.remove(text_path)

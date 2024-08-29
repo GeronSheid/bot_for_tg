@@ -35,7 +35,6 @@ async def command_start_handler(message: Message) -> None:
 #функция для отправки в канал поста по любому сообщению
 @dp.channel_post()
 async def channel_post_handler(message: Message) -> None:
-    await message.answer(f'{message.chat.id}')
     await create_post(bot, message.chat.id, content_dir)
 
 

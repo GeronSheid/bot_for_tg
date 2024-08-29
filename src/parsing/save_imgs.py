@@ -1,12 +1,13 @@
 import os
 import aiohttp
 import asyncio
-from aiofiles import open as aioopen
 from PIL import Image
 from io import BytesIO
-from typing import Dict
-async def download_image(session: aiohttp.ClientSession, url: str, folder: str, image_num: int, retries: int = 3) -> None:
+from typing import List, Dict
+
+async def download_image(session: aiohttp.ClientSession, image_info: Dict[str, any], folder: str, image_num: int, retries: int = 3) -> None:
     """Асинхронная функция для загрузки изображения по ссылке и сохранения в формате WebP с повторами."""
+    url = image_info["url"]
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
     }
@@ -37,30 +38,15 @@ async def download_image(session: aiohttp.ClientSession, url: str, folder: str, 
                 return
             await asyncio.sleep(2)  # Небольшая задержка перед следующей попыткой
 
-async def save_artist_name(folder: str, image_num: int, artist_name: str) -> None:
-    """Асинхронная функция для сохранения имени артиста в текстовый файл."""
-    try:
-        # Создаем уникальное имя файла для имени артиста
-        artist_filename = f"image_{image_num}.txt"
-        artist_filepath = os.path.join(folder, artist_filename)
-
-        # Асинхронно сохраняем имя артиста в файл
-        async with aioopen(artist_filepath, 'w') as f:
-            await f.write(artist_name)
-
-    except OSError as e:
-        print(f"Не удалось сохранить имя артиста {artist_name}: {e}")
-
-async def download_images(url_artist_map: Dict[str, str], folder: str) -> None:
-    """Асинхронная функция для загрузки изображений и сохранения имен артистов."""
+async def download_images(url_artist_map: List[Dict[str, any]], folder: str) -> None:
+    """Асинхронная функция для загрузки изображений из списка словарей."""
     # Проверяем и создаем папку, если она не существует
     os.makedirs(folder, exist_ok=True)
 
     async with aiohttp.ClientSession() as session:
         tasks = []
-        for i, (url, artist_name) in enumerate(url_artist_map.items(), 1):
-            tasks.append(download_image(session, url, folder, i))
-            tasks.append(save_artist_name(folder, i, artist_name))
+        for i, image_info in enumerate(url_artist_map, 1):
+            tasks.append(download_image(session, image_info, folder, i))
         
         # Ожидаем завершения всех задач
         await asyncio.gather(*tasks)

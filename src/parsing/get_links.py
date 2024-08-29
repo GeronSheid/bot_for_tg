@@ -17,9 +17,10 @@ async def fetch(session: aiohttp.ClientSession, url: str) -> Optional[str]:
         print(f"Ошибка при запросе: {e} на URL: {url}")
         return None
 
-async def search_links(url: str, posts_amount: int) -> dict[str: str]:
+async def search_links(url: str, posts_amount: int) -> List[dict[str: str]]:
+    """Асинхронная функция для парсинга"""
     pagination: int = 0
-    data_links_artists: dict[str: str] = {}
+    data_links_artists: List[dict[str: str]] = []
 
     while pagination < posts_amount:
         url = f"{url}&pid={pagination}"
@@ -60,14 +61,14 @@ async def search_links(url: str, posts_amount: int) -> dict[str: str]:
 
                                     if img and artist_name :
                                         img_link = img['src']
-                                        tags.append(re.sub(r'[^a-zA-Z0-9]', '', artist_name.text))
+                                        artist_right_name = re.sub(r'[^a-zA-Z0-9]', '', artist_name.text)
 
                                         for tag in copyright:
                                             tag = tag.find_all('a', href=True)[1]
                                             tags.append(re.sub(r'[^a-zA-Z0-9]', '', tag.text))
                                         
                                         if img_link.endswith(('png', 'jpg', 'jpeg')):
-                                            data_links_artists[img['src']] = ' '.join(tags)
+                                            data_links_artists.append({'url': img['src'], 'author': artist_right_name, 'tags': tags})
                             else:
                                 print(f"Ошибка при запросе на URL: {link['href']}")
                         else:

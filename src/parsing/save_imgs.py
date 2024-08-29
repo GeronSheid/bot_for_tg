@@ -1,30 +1,41 @@
-import aiohttp
 import os
+import aiohttp
 import asyncio
-from typing import Dict
 from aiofiles import open as aioopen
-
-async def download_image(session: aiohttp.ClientSession, url: str, folder: str, image_num: int) -> None:
-    """Асинхронная функция для загрузки изображения по ссылке."""
+from PIL import Image
+from io import BytesIO
+from typing import Dict
+async def download_image(session: aiohttp.ClientSession, url: str, folder: str, image_num: int, retries: int = 3) -> None:
+    """Асинхронная функция для загрузки изображения по ссылке и сохранения в формате WebP с повторами."""
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
     }
 
-    try:
-        async with session.get(url, headers=headers, timeout=20) as response:
-            response.raise_for_status()
+    for attempt in range(1, retries + 1):
+        try:
+            async with session.get(url, headers=headers, timeout=20) as response:
+                response.raise_for_status()
 
-            # Создаем уникальное имя файла для изображения
-            image_filename = f"image_{image_num}.jpg"
-            image_filepath = os.path.join(folder, image_filename)
-
-            # Асинхронно сохраняем изображение в файл
-            async with aioopen(image_filepath, 'wb') as f:
+                # Считываем содержимое изображения
                 content = await response.read()
-                await f.write(content)
 
-    except (aiohttp.ClientError, asyncio.TimeoutError) as e:
-        print(f"Не удалось загрузить изображение по ссылке {url}: {e}")
+                # Открываем изображение с использованием PIL
+                image = Image.open(BytesIO(content))
+
+                # Создаем уникальное имя файла для изображения в формате WebP
+                image_filename = f"image_{image_num}.webp"
+                image_filepath = os.path.join(folder, image_filename)
+
+                # Сохраняем изображение в формате WebP
+                image.save(image_filepath, format="WEBP")
+                break  # Если удалось скачать изображение, выходим из цикла
+
+        except (aiohttp.ClientError, asyncio.TimeoutError, Image.UnidentifiedImageError) as e:
+            print(f"Не удалось загрузить изображение по ссылке {url}: {e}. Попытка {attempt} из {retries}")
+            if attempt == retries:
+                print(f"Превышено максимальное количество попыток для изображения {image_num}.")
+                return
+            await asyncio.sleep(2)  # Небольшая задержка перед следующей попыткой
 
 async def save_artist_name(folder: str, image_num: int, artist_name: str) -> None:
     """Асинхронная функция для сохранения имени артиста в текстовый файл."""

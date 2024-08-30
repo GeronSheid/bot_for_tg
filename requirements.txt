@@ -6,7 +6,6 @@ motor
 beanie
 aiofiles==24.1.0
 aiohappyeyeballs==2.4.0
-aiohttp==3.10.5
 aiosignal==1.3.1
 async-timeout==4.0.3
 attrs==24.2.0
@@ -21,3 +20,4 @@ requests==2.32.3
 soupsieve==2.6
 urllib3==2.2.2
 yarl==1.9.4
+apscheduler

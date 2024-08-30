@@ -5,6 +5,8 @@ from PIL import Image
 from io import BytesIO
 from typing import List, Dict
 
+from database.models import add_image
+
 async def download_image(session: aiohttp.ClientSession, image_info: Dict[str, any], folder: str, image_num: int, retries: int = 3) -> None:
     """Асинхронная функция для загрузки изображения по ссылке и сохранения в формате WebP с повторами."""
     url = image_info["url"]
@@ -26,9 +28,16 @@ async def download_image(session: aiohttp.ClientSession, image_info: Dict[str, a
                 # Создаем уникальное имя файла для изображения в формате WebP
                 image_filename = f"image_{image_num}.webp"
                 image_filepath = os.path.join(folder, image_filename)
-
+                
                 # Сохраняем изображение в формате WebP
                 image.save(image_filepath, format="WEBP")
+
+                table = {
+                    'url': image_filepath,
+                    'author': image_info['author'],
+                    'tags': image_info['tags']
+                }
+                await add_image(table)
                 break  # Если удалось скачать изображение, выходим из цикла
 
         except (aiohttp.ClientError, asyncio.TimeoutError, Image.UnidentifiedImageError) as e:

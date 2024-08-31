@@ -3,29 +3,19 @@ from .save_imgs import *
 from .get_links import *
 from typing import List
 
-# urls для обхода и название для папки, на выходе будет дописано "img_*your text*"
-urls: List[List[str]] = [
-    ['https://gelbooru.com/index.php?page=post&s=list&tags=1girl+highres+anal', 'anal'],
-    ['https://gelbooru.com/index.php?page=post&s=list&tags=1girl+highres+vaginal', 'classic'],
-    ['https://gelbooru.com/index.php?page=post&s=list&tags=1girl+highres+oral', 'oral'],
-]
-
-async def main(url: str, dir: str) -> None:
+async def start_pars(parsing_info: List[str], quantity: int) -> None:
     print("Загружаю ссылки...")
-    links = await search_links(url, 50)
+    url = parsing_info[0]
+    folder_name = parsing_info[1]
+    content_type = 'video' if folder_name.endswith('videos') else 'image'    
+    content_info = await search_links(url, content_type, quantity)
 
-    if links:
-        print("Ссылки загружены!", len(links))
+    if content_info:
+        print("Ссылки загружены!", len(content_info))
         print("Загружаю изображения...")
-        await download_images(links, dir)
+        await download_media(content_info, folder_name)
         print("Изображения загружены!")
     else:
         print("Ссылки не найдены!")
 
-async def start_parsing():
-    for url in urls:
-        dir = f"img_{url[1]}"
-        await main(url[0], dir)
-
-    return 
 

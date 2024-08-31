@@ -2,6 +2,8 @@ import os
 from aiogram import Bot
 from aiogram.types import Message, InputMediaPhoto, FSInputFile
 
+from database.models import delete_image
+
 async def create_post(bot: Bot, chat_id: str, dir: str):
     media = []
     filename = os.listdir(dir)[0]
@@ -23,9 +25,12 @@ async def create_post(bot: Bot, chat_id: str, dir: str):
 
 async def create_post_from_db(post, bot: Bot, chat_id: str):
     media = []
-    text = ''
+    author = post['author']
+    tags = ''
     for tag in post.tags:
-        text = text + f'#{tag} '
+        tags = tags + f'#{tag} '
+    text = f'Автор: {author}\n Тэги: {tags}\n'
     media.append(InputMediaPhoto(media=FSInputFile(path=post.url), caption=text))
     await bot.send_media_group(chat_id=chat_id, media=media)
+    await delete_image(post.url)
     os.remove(post.url)

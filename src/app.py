@@ -18,11 +18,12 @@ from database.models import add_image, get_image
 from parsing import start_parsing
 from posts_handling.create_post import create_post, create_post_from_db
 
+
+from operations.join_spam import join_spam_router
+
 load_dotenv()
 BOT_TOKEN = os.getenv('BOT_TOKEN')
 
-async def run_parser_span():
-    print('запуск парсера')
 
 dp = Dispatcher()
 bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
@@ -31,10 +32,16 @@ filePath = os.path.abspath(__file__)
 project_dir = os.path.dirname(os.path.dirname(filePath))
 content_dir = os.path.join(project_dir, 'img_anal')
 counter = 2
+
+
+dp.include_routers(join_spam_router)
+
+
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
     await message.answer('Ну привет мой маленький любитель поучиться!')
 #функция для отправки в канал поста по любому сообщению
+
 @dp.channel_post()
 async def channel_post_handler(message: Message) -> None:
     global counter

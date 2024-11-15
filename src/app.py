@@ -30,21 +30,21 @@ scheduller = AsyncIOScheduler()
 filePath = os.path.abspath(__file__)
 project_dir = os.path.dirname(os.path.dirname(filePath))
 content_dir = os.path.join(project_dir, 'img_anal')
-counter = 2
+# counter = 2
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
     await message.answer('Ну привет мой маленький любитель поучиться!')
 #функция для отправки в канал поста по любому сообщению
-@dp.channel_post()
-async def channel_post_handler(message: Message) -> None:
-    global counter
-    abs_path = os.path.join(content_dir, f'image_{counter}.webp')
-    baseDir = os.path.dirname(os.path.dirname(filePath))
-    path = os.path.relpath(abs_path, baseDir)
-    res = await get_image(url=path)
-    print('Сюда смотри', res.url)
-    await create_post_from_db(post=res, bot=bot, chat_id=message.chat.id)
-    counter = counter + 1
+# @dp.channel_post()
+# async def channel_post_handler(message: Message) -> None:
+#     global counter
+#     abs_path = os.path.join(content_dir, f'image_{counter}.webp')
+#     baseDir = os.path.dirname(os.path.dirname(filePath))
+#     path = os.path.relpath(abs_path, baseDir)
+#     res = await get_image(url=path)
+#     print('Сюда смотри', res.url)
+#     await create_post_from_db(post=res, bot=bot, chat_id=message.chat.id)
+#     counter = counter + 1
 
 
 # async def on_startup():
